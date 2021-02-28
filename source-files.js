@@ -6,5 +6,5 @@ sourcesIndex["actix_multipart"] = {"name":"","files":["error.rs","extractor.rs",
 sourcesIndex["actix_web"] = {"name":"","dirs":[{"name":"middleware","files":["compat.rs","compress.rs","condition.rs","default_headers.rs","err_handlers.rs","logger.rs","mod.rs","normalize.rs"]},{"name":"types","files":["either.rs","form.rs","json.rs","mod.rs","path.rs","payload.rs","query.rs","readlines.rs"]}],"files":["app.rs","app_service.rs","config.rs","data.rs","error.rs","extract.rs","guard.rs","handler.rs","info.rs","lib.rs","request.rs","request_data.rs","resource.rs","responder.rs","rmap.rs","route.rs","scope.rs","server.rs","service.rs","test.rs","web.rs"]};
 sourcesIndex["actix_web_actors"] = {"name":"","files":["context.rs","lib.rs","ws.rs"]};
 sourcesIndex["actix_web_codegen"] = {"name":"","files":["lib.rs","route.rs"]};
-sourcesIndex["awc"] = {"name":"","files":["builder.rs","connect.rs","error.rs","frozen.rs","lib.rs","request.rs","response.rs","sender.rs","test.rs","ws.rs"]};
+sourcesIndex["awc"] = {"name":"","dirs":[{"name":"middleware","files":["mod.rs","redirect.rs"]}],"files":["builder.rs","connect.rs","error.rs","frozen.rs","lib.rs","request.rs","response.rs","sender.rs","test.rs","ws.rs"]};
 createSourceSidebar();

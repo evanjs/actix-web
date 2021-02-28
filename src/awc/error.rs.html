@@ -74,6 +74,13 @@
 <span id="73">73</span>
 <span id="74">74</span>
 <span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! HTTP client errors</span>
 
@@ -95,24 +102,31 @@
     <span class="doccomment">/// Invalid response status</span>
     <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Invalid response status&quot;</span>)]</span>
     <span class="ident">InvalidResponseStatus</span>(<span class="ident">StatusCode</span>),
+
     <span class="doccomment">/// Invalid upgrade header</span>
     <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Invalid upgrade header&quot;</span>)]</span>
     <span class="ident">InvalidUpgradeHeader</span>,
+
     <span class="doccomment">/// Invalid connection header</span>
     <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Invalid connection header&quot;</span>)]</span>
     <span class="ident">InvalidConnectionHeader</span>(<span class="ident">HeaderValue</span>),
-    <span class="doccomment">/// Missing CONNECTION header</span>
-    <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Missing CONNECTION header&quot;</span>)]</span>
+
+    <span class="doccomment">/// Missing Connection header</span>
+    <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Missing Connection header&quot;</span>)]</span>
     <span class="ident">MissingConnectionHeader</span>,
-    <span class="doccomment">/// Missing SEC-WEBSOCKET-ACCEPT header</span>
-    <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Missing SEC-WEBSOCKET-ACCEPT header&quot;</span>)]</span>
+
+    <span class="doccomment">/// Missing Sec-Websocket-Accept header</span>
+    <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Missing Sec-Websocket-Accept header&quot;</span>)]</span>
     <span class="ident">MissingWebSocketAcceptHeader</span>,
+
     <span class="doccomment">/// Invalid challenge response</span>
     <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Invalid challenge response&quot;</span>)]</span>
-    <span class="ident">InvalidChallengeResponse</span>(<span class="ident">String</span>, <span class="ident">HeaderValue</span>),
+    <span class="ident">InvalidChallengeResponse</span>([<span class="ident">u8</span>; <span class="number">28</span>], <span class="ident">HeaderValue</span>),
+
     <span class="doccomment">/// Protocol error</span>
     <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;{}&quot;</span>, <span class="ident">_0</span>)]</span>
     <span class="ident">Protocol</span>(<span class="ident">WsProtocolError</span>),
+
     <span class="doccomment">/// Send request error</span>
     <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;{}&quot;</span>, <span class="ident">_0</span>)]</span>
     <span class="ident">SendRequest</span>(<span class="ident">SendRequestError</span>),

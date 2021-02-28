@@ -685,8 +685,6 @@
 <span id="684">684</span>
 <span id="685">685</span>
 <span id="686">686</span>
-<span id="687">687</span>
-<span id="688">688</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! For JSON helper documentation, see [`Json`].</span>
 
@@ -1131,9 +1129,7 @@
     <span class="kw">fn</span> <span class="ident">json_eq</span>(<span class="ident">err</span>: <span class="ident">JsonPayloadError</span>, <span class="ident">other</span>: <span class="ident">JsonPayloadError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="ident">err</span> {
             <span class="ident">JsonPayloadError</span>::<span class="ident">Overflow</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">other</span>, <span class="ident">JsonPayloadError</span>::<span class="ident">Overflow</span>),
-            <span class="ident">JsonPayloadError</span>::<span class="ident">ContentType</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">other</span>, <span class="ident">JsonPayloadError</span>::<span class="ident">ContentType</span>)
-            }
+            <span class="ident">JsonPayloadError</span>::<span class="ident">ContentType</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">other</span>, <span class="ident">JsonPayloadError</span>::<span class="ident">ContentType</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
         }
     }

@@ -758,43 +758,6 @@
 <span id="755">755</span>
 <span id="756">756</span>
 <span id="757">757</span>
-<span id="758">758</span>
-<span id="759">759</span>
-<span id="760">760</span>
-<span id="761">761</span>
-<span id="762">762</span>
-<span id="763">763</span>
-<span id="764">764</span>
-<span id="765">765</span>
-<span id="766">766</span>
-<span id="767">767</span>
-<span id="768">768</span>
-<span id="769">769</span>
-<span id="770">770</span>
-<span id="771">771</span>
-<span id="772">772</span>
-<span id="773">773</span>
-<span id="774">774</span>
-<span id="775">775</span>
-<span id="776">776</span>
-<span id="777">777</span>
-<span id="778">778</span>
-<span id="779">779</span>
-<span id="780">780</span>
-<span id="781">781</span>
-<span id="782">782</span>
-<span id="783">783</span>
-<span id="784">784</span>
-<span id="785">785</span>
-<span id="786">786</span>
-<span id="787">787</span>
-<span id="788">788</span>
-<span id="789">789</span>
-<span id="790">790</span>
-<span id="791">791</span>
-<span id="792">792</span>
-<span id="793">793</span>
-<span id="794">794</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Static file serving for Actix Web.</span>
 <span class="doccomment">//!</span>
@@ -1460,8 +1423,12 @@
 
     <span class="attribute">#[<span class="ident">actix_rt</span>::<span class="ident">test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_static_files_bad_directory</span>() {
-        <span class="kw">let</span> <span class="ident">_st</span>: <span class="ident">Files</span> <span class="op">=</span> <span class="ident">Files</span>::<span class="ident">new</span>(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;missing&quot;</span>);
-        <span class="kw">let</span> <span class="ident">_st</span>: <span class="ident">Files</span> <span class="op">=</span> <span class="ident">Files</span>::<span class="ident">new</span>(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;Cargo.toml&quot;</span>);
+        <span class="kw">let</span> <span class="ident">service</span> <span class="op">=</span> <span class="ident">Files</span>::<span class="ident">new</span>(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;./missing&quot;</span>).<span class="ident">new_service</span>(()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+
+        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">with_uri</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">to_srv_request</span>();
+        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">test</span>::<span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">service</span>, <span class="ident">req</span>).<span class="kw">await</span>;
+
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode</span>::<span class="ident">NOT_FOUND</span>);
     }
 
     <span class="attribute">#[<span class="ident">actix_rt</span>::<span class="ident">test</span>]</span>
@@ -1474,75 +1441,34 @@
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">with_uri</span>(<span class="string">&quot;/missing&quot;</span>).<span class="ident">to_srv_request</span>();
-
         <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">test</span>::<span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">st</span>, <span class="ident">req</span>).<span class="kw">await</span>;
+
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode</span>::<span class="ident">OK</span>);
         <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">test</span>::<span class="ident">read_body</span>(<span class="ident">resp</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">bytes</span>, <span class="ident">web</span>::<span class="ident">Bytes</span>::<span class="ident">from_static</span>(<span class="string">b&quot;default content&quot;</span>));
     }
 
-    <span class="comment">//     #[actix_rt::test]</span>
-    <span class="comment">//     async fn test_serve_index() {</span>
-    <span class="comment">//         let st = Files::new(&quot;.&quot;).index_file(&quot;test.binary&quot;);</span>
-    <span class="comment">//         let req = TestRequest::default().uri(&quot;/tests&quot;).finish();</span>
+    <span class="attribute">#[<span class="ident">actix_rt</span>::<span class="ident">test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_serve_index_nested</span>() {
+        <span class="kw">let</span> <span class="ident">service</span> <span class="op">=</span> <span class="ident">Files</span>::<span class="ident">new</span>(<span class="string">&quot;.&quot;</span>, <span class="string">&quot;.&quot;</span>)
+            .<span class="ident">index_file</span>(<span class="string">&quot;lib.rs&quot;</span>)
+            .<span class="ident">new_service</span>(())
+            .<span class="kw">await</span>
+            .<span class="ident">unwrap</span>();
 
-    <span class="comment">//         let resp = st.handle(&amp;req).respond_to(&amp;req).unwrap();</span>
-    <span class="comment">//         let resp = resp.as_msg();</span>
-    <span class="comment">//         assert_eq!(resp.status(), StatusCode::OK);</span>
-    <span class="comment">//         assert_eq!(</span>
-    <span class="comment">//             resp.headers()</span>
-    <span class="comment">//                 .get(header::CONTENT_TYPE)</span>
-    <span class="comment">//                 .expect(&quot;content type&quot;),</span>
-    <span class="comment">//             &quot;application/octet-stream&quot;</span>
-    <span class="comment">//         );</span>
-    <span class="comment">//         assert_eq!(</span>
-    <span class="comment">//             resp.headers()</span>
-    <span class="comment">//                 .get(header::CONTENT_DISPOSITION)</span>
-    <span class="comment">//                 .expect(&quot;content disposition&quot;),</span>
-    <span class="comment">//             &quot;attachment; filename=\&quot;test.binary\&quot;&quot;</span>
-    <span class="comment">//         );</span>
+        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">default</span>().<span class="ident">uri</span>(<span class="string">&quot;/src&quot;</span>).<span class="ident">to_srv_request</span>();
+        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">test</span>::<span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">service</span>, <span class="ident">req</span>).<span class="kw">await</span>;
 
-    <span class="comment">//         let req = TestRequest::default().uri(&quot;/tests/&quot;).finish();</span>
-    <span class="comment">//         let resp = st.handle(&amp;req).respond_to(&amp;req).unwrap();</span>
-    <span class="comment">//         let resp = resp.as_msg();</span>
-    <span class="comment">//         assert_eq!(resp.status(), StatusCode::OK);</span>
-    <span class="comment">//         assert_eq!(</span>
-    <span class="comment">//             resp.headers().get(header::CONTENT_TYPE).unwrap(),</span>
-    <span class="comment">//             &quot;application/octet-stream&quot;</span>
-    <span class="comment">//         );</span>
-    <span class="comment">//         assert_eq!(</span>
-    <span class="comment">//             resp.headers().get(header::CONTENT_DISPOSITION).unwrap(),</span>
-    <span class="comment">//             &quot;attachment; filename=\&quot;test.binary\&quot;&quot;</span>
-    <span class="comment">//         );</span>
-
-    <span class="comment">//         // nonexistent index file</span>
-    <span class="comment">//         let req = TestRequest::default().uri(&quot;/tests/unknown&quot;).finish();</span>
-    <span class="comment">//         let resp = st.handle(&amp;req).respond_to(&amp;req).unwrap();</span>
-    <span class="comment">//         let resp = resp.as_msg();</span>
-    <span class="comment">//         assert_eq!(resp.status(), StatusCode::NOT_FOUND);</span>
-
-    <span class="comment">//         let req = TestRequest::default().uri(&quot;/tests/unknown/&quot;).finish();</span>
-    <span class="comment">//         let resp = st.handle(&amp;req).respond_to(&amp;req).unwrap();</span>
-    <span class="comment">//         let resp = resp.as_msg();</span>
-    <span class="comment">//         assert_eq!(resp.status(), StatusCode::NOT_FOUND);</span>
-    <span class="comment">//     }</span>
-
-    <span class="comment">//     #[actix_rt::test]</span>
-    <span class="comment">//     async fn test_serve_index_nested() {</span>
-    <span class="comment">//         let st = Files::new(&quot;.&quot;).index_file(&quot;mod.rs&quot;);</span>
-    <span class="comment">//         let req = TestRequest::default().uri(&quot;/src/client&quot;).finish();</span>
-    <span class="comment">//         let resp = st.handle(&amp;req).respond_to(&amp;req).unwrap();</span>
-    <span class="comment">//         let resp = resp.as_msg();</span>
-    <span class="comment">//         assert_eq!(resp.status(), StatusCode::OK);</span>
-    <span class="comment">//         assert_eq!(</span>
-    <span class="comment">//             resp.headers().get(header::CONTENT_TYPE).unwrap(),</span>
-    <span class="comment">//             &quot;text/x-rust&quot;</span>
-    <span class="comment">//         );</span>
-    <span class="comment">//         assert_eq!(</span>
-    <span class="comment">//             resp.headers().get(header::CONTENT_DISPOSITION).unwrap(),</span>
-    <span class="comment">//             &quot;inline; filename=\&quot;mod.rs\&quot;&quot;</span>
-    <span class="comment">//         );</span>
-    <span class="comment">//     }</span>
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode</span>::<span class="ident">OK</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(
+            <span class="ident">resp</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">header</span>::<span class="ident">CONTENT_TYPE</span>).<span class="ident">unwrap</span>(),
+            <span class="string">&quot;text/x-rust&quot;</span>
+        );
+        <span class="macro">assert_eq</span><span class="macro">!</span>(
+            <span class="ident">resp</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">header</span>::<span class="ident">CONTENT_DISPOSITION</span>).<span class="ident">unwrap</span>(),
+            <span class="string">&quot;inline; filename=\&quot;lib.rs\&quot;&quot;</span>
+        );
+    }
 
     <span class="attribute">#[<span class="ident">actix_rt</span>::<span class="ident">test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">integration_serve_index</span>() {

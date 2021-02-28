@@ -507,10 +507,6 @@
 <span id="506">506</span>
 <span id="507">507</span>
 <span id="508">508</span>
-<span id="509">509</span>
-<span id="510">510</span>
-<span id="511">511</span>
-<span id="512">512</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! For URL encoded form helper documentation, see [`Form`].</span>
 
@@ -914,12 +910,8 @@
             <span class="ident">UrlencodedError</span>::<span class="ident">Overflow</span> { .. } <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">other</span>, <span class="ident">UrlencodedError</span>::<span class="ident">Overflow</span> { .. })
             }
-            <span class="ident">UrlencodedError</span>::<span class="ident">UnknownLength</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">other</span>, <span class="ident">UrlencodedError</span>::<span class="ident">UnknownLength</span>)
-            }
-            <span class="ident">UrlencodedError</span>::<span class="ident">ContentType</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">other</span>, <span class="ident">UrlencodedError</span>::<span class="ident">ContentType</span>)
-            }
+            <span class="ident">UrlencodedError</span>::<span class="ident">UnknownLength</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">other</span>, <span class="ident">UrlencodedError</span>::<span class="ident">UnknownLength</span>),
+            <span class="ident">UrlencodedError</span>::<span class="ident">ContentType</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">other</span>, <span class="ident">UrlencodedError</span>::<span class="ident">ContentType</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
         }
     }
