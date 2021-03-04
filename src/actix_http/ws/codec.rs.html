@@ -378,7 +378,7 @@
 
 <span class="kw">impl</span> <span class="ident">Codec</span> {
     <span class="doccomment">/// Create new WebSocket frames decoder.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Codec</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Codec</span> {
         <span class="ident">Codec</span> {
             <span class="ident">max_size</span>: <span class="number">65_536</span>,
             <span class="ident">flags</span>: <span class="ident">Flags</span>::<span class="ident">SERVER</span>,

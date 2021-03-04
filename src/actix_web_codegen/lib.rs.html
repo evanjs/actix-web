@@ -196,6 +196,8 @@
 <span id="193">193</span>
 <span id="194">194</span>
 <span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Routing and runtime macros for Actix Web.</span>
 <span class="doccomment">//!</span>
@@ -270,6 +272,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Attributes</span>
 <span class="doccomment">/// - `&quot;path&quot;` - Raw literal string with path for which to register handler.</span>
+<span class="doccomment">/// - `name=&quot;resource_name&quot;` - Specifies resource name for the handler. If not set, the function name of handler is used.</span>
 <span class="doccomment">/// - `method=&quot;HTTP_METHOD&quot;` - Registers HTTP method to provide guard for. Upper-case string, &quot;GET&quot;, &quot;POST&quot; for example.</span>
 <span class="doccomment">/// - `guard=&quot;function_name&quot;` - Registers function as guard using `actix_web::guard::fn_guard`</span>
 <span class="doccomment">/// - `wrap=&quot;Middleware&quot;` - Registers a resource middleware.</span>
@@ -315,6 +318,7 @@ Creates route handler with `actix_web::guard::&quot;</span>, <span class="macro"
 
 # Attributes
 - `&quot;path&quot;` - Raw literal string with path for which to register handler.
+- `name=&quot;resource_name&quot;` - Specifies resource name for the handler. If not set, the function name of handler is used.
 - `guard=&quot;function_name&quot;` - Registers function as guard using `actix_web::guard::fn_guard`.
 - `wrap=&quot;Middleware&quot;` - Registers a resource middleware.
 

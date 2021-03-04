@@ -341,6 +341,21 @@
 <span id="338">338</span>
 <span id="339">339</span>
 <span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">proc_macro</span>;
 
@@ -422,6 +437,7 @@
 
 <span class="kw">struct</span> <span class="ident">Args</span> {
     <span class="ident">path</span>: <span class="ident">syn</span>::<span class="ident">LitStr</span>,
+    <span class="ident">resource_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">LitStr</span><span class="op">&gt;</span>,
     <span class="ident">guards</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ident</span><span class="op">&gt;</span>,
     <span class="ident">wrappers</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
     <span class="ident">methods</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">MethodType</span><span class="op">&gt;</span>,
@@ -430,6 +446,7 @@
 <span class="kw">impl</span> <span class="ident">Args</span> {
     <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">args</span>: <span class="ident">AttributeArgs</span>, <span class="ident">method</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MethodType</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">resource_name</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">guards</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">wrappers</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">methods</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
@@ -453,7 +470,16 @@
                     }
                 },
                 <span class="ident">NestedMeta</span>::<span class="ident">Meta</span>(<span class="ident">syn</span>::<span class="ident">Meta</span>::<span class="ident">NameValue</span>(<span class="ident">nv</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">if</span> <span class="ident">nv</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;guard&quot;</span>) {
+                    <span class="kw">if</span> <span class="ident">nv</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;name&quot;</span>) {
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn</span>::<span class="ident">Lit</span>::<span class="ident">Str</span>(<span class="ident">lit</span>) <span class="op">=</span> <span class="ident">nv</span>.<span class="ident">lit</span> {
+                            <span class="ident">resource_name</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">lit</span>);
+                        } <span class="kw">else</span> {
+                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn</span>::<span class="ident">Error</span>::<span class="ident">new_spanned</span>(
+                                <span class="ident">nv</span>.<span class="ident">lit</span>,
+                                <span class="string">&quot;Attribute name expects literal string!&quot;</span>,
+                            ));
+                        }
+                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">nv</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;guard&quot;</span>) {
                         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn</span>::<span class="ident">Lit</span>::<span class="ident">Str</span>(<span class="ident">lit</span>) <span class="op">=</span> <span class="ident">nv</span>.<span class="ident">lit</span> {
                             <span class="ident">guards</span>.<span class="ident">push</span>(<span class="ident">Ident</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">lit</span>.<span class="ident">value</span>(), <span class="ident">Span</span>::<span class="ident">call_site</span>()));
                         } <span class="kw">else</span> {
@@ -508,6 +534,7 @@
         }
         <span class="prelude-val">Ok</span>(<span class="ident">Args</span> {
             <span class="ident">path</span>: <span class="ident">path</span>.<span class="ident">unwrap</span>(),
+            <span class="ident">resource_name</span>,
             <span class="ident">guards</span>,
             <span class="ident">wrappers</span>,
             <span class="ident">methods</span>,
@@ -620,6 +647,7 @@
             <span class="ident">args</span>:
                 <span class="ident">Args</span> {
                     <span class="ident">path</span>,
+                    <span class="ident">resource_name</span>,
                     <span class="ident">guards</span>,
                     <span class="ident">wrappers</span>,
                     <span class="ident">methods</span>,
@@ -627,7 +655,9 @@
             <span class="ident">resource_type</span>,
             <span class="ident">doc_attributes</span>,
         } <span class="op">=</span> <span class="self">self</span>;
-        <span class="kw">let</span> <span class="ident">resource_name</span> <span class="op">=</span> <span class="ident">name</span>.<span class="ident">to_string</span>();
+        <span class="kw">let</span> <span class="ident">resource_name</span> <span class="op">=</span> <span class="ident">resource_name</span>
+            .<span class="ident">as_ref</span>()
+            .<span class="ident">map_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">name</span>.<span class="ident">to_string</span>(), <span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="ident">n</span>.<span class="ident">value</span>());
         <span class="kw">let</span> <span class="ident">method_guards</span> <span class="op">=</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">others</span> <span class="op">=</span> <span class="ident">methods</span>.<span class="ident">iter</span>();
             <span class="comment">// unwrapping since length is checked to be at least one</span>
