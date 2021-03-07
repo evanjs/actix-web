@@ -293,6 +293,47 @@
 <span id="292">292</span>
 <span id="293">293</span>
 <span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Write</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">pin</span>::<span class="ident">Pin</span>;
@@ -303,13 +344,15 @@
 <span class="kw">use</span> <span class="ident">bytes</span>::<span class="ident">buf</span>::<span class="ident">BufMut</span>;
 <span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">Bytes</span>, <span class="ident">BytesMut</span>};
 <span class="kw">use</span> <span class="ident">futures_core</span>::<span class="ident">Stream</span>;
-<span class="kw">use</span> <span class="ident">futures_util</span>::<span class="ident">future</span>::<span class="ident">poll_fn</span>;
-<span class="kw">use</span> <span class="ident">futures_util</span>::{<span class="ident">SinkExt</span>, <span class="ident">StreamExt</span>};
+<span class="kw">use</span> <span class="ident">futures_util</span>::{<span class="ident">future</span>::<span class="ident">poll_fn</span>, <span class="ident">SinkExt</span>, <span class="ident">StreamExt</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">PayloadError</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">h1</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">header</span>::<span class="ident">HeaderMap</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">http</span>::<span class="ident">header</span>::{<span class="ident">IntoHeaderValue</span>, <span class="ident">HOST</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">http</span>::{
+    <span class="ident">header</span>::{<span class="ident">IntoHeaderValue</span>, <span class="ident">EXPECT</span>, <span class="ident">HOST</span>},
+    <span class="ident">StatusCode</span>,
+};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">message</span>::{<span class="ident">RequestHeadType</span>, <span class="ident">ResponseHead</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">payload</span>::{<span class="ident">Payload</span>, <span class="ident">PayloadStream</span>};
 
@@ -362,33 +405,72 @@
         <span class="ident">io</span>: <span class="prelude-val">Some</span>(<span class="ident">io</span>),
     };
 
-    <span class="comment">// create Framed and send request</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">framed_inner</span> <span class="op">=</span> <span class="ident">Framed</span>::<span class="ident">new</span>(<span class="ident">io</span>, <span class="ident">h1</span>::<span class="ident">ClientCodec</span>::<span class="ident">default</span>());
-    <span class="ident">framed_inner</span>.<span class="ident">send</span>((<span class="ident">head</span>, <span class="ident">body</span>.<span class="ident">size</span>()).<span class="ident">into</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// create Framed and prepare sending request</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">framed</span> <span class="op">=</span> <span class="ident">Framed</span>::<span class="ident">new</span>(<span class="ident">io</span>, <span class="ident">h1</span>::<span class="ident">ClientCodec</span>::<span class="ident">default</span>());
 
-    <span class="comment">// send request body</span>
-    <span class="kw">match</span> <span class="ident">body</span>.<span class="ident">size</span>() {
-        <span class="ident">BodySize</span>::<span class="prelude-val">None</span> <span class="op">|</span> <span class="ident">BodySize</span>::<span class="ident">Empty</span> <span class="op">|</span> <span class="ident">BodySize</span>::<span class="ident">Sized</span>(<span class="number">0</span>) <span class="op">=</span><span class="op">&gt;</span> {}
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">send_body</span>(<span class="ident">body</span>, <span class="ident">Pin</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">framed_inner</span>)).<span class="kw">await</span><span class="question-mark">?</span>,
-    };
+    <span class="comment">// Check EXPECT header and enable expect handle flag accordingly.</span>
+    <span class="comment">//</span>
+    <span class="comment">// RFC: https://tools.ietf.org/html/rfc7231#section-5.1.1</span>
+    <span class="kw">let</span> <span class="ident">is_expect</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">head</span>.<span class="ident">as_ref</span>().<span class="ident">headers</span>.<span class="ident">contains_key</span>(<span class="ident">EXPECT</span>) {
+        <span class="kw">match</span> <span class="ident">body</span>.<span class="ident">size</span>() {
+            <span class="ident">BodySize</span>::<span class="prelude-val">None</span> <span class="op">|</span> <span class="ident">BodySize</span>::<span class="ident">Empty</span> <span class="op">|</span> <span class="ident">BodySize</span>::<span class="ident">Sized</span>(<span class="number">0</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="ident">pin_framed</span> <span class="op">=</span> <span class="ident">Pin</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">framed</span>);
 
-    <span class="comment">// read response and init read body</span>
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Pin</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">framed_inner</span>).<span class="ident">into_future</span>().<span class="kw">await</span>;
-    <span class="kw">let</span> (<span class="ident">head</span>, <span class="ident">framed</span>) <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> (<span class="prelude-val">Some</span>(<span class="ident">result</span>), <span class="ident">framed</span>) <span class="op">=</span> <span class="ident">res</span> {
-        <span class="kw">let</span> <span class="ident">item</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">map_err</span>(<span class="ident">SendRequestError</span>::<span class="ident">from</span>)<span class="question-mark">?</span>;
-        (<span class="ident">item</span>, <span class="ident">framed</span>)
+                <span class="kw">let</span> <span class="ident">force_close</span> <span class="op">=</span> <span class="op">!</span><span class="ident">pin_framed</span>.<span class="ident">codec_ref</span>().<span class="ident">keepalive</span>();
+                <span class="ident">release_connection</span>(<span class="ident">pin_framed</span>, <span class="ident">force_close</span>);
+
+                <span class="comment">// TODO: use a new variant or a new type better describing error violate</span>
+                <span class="comment">// `Requirements for clients` session of above RFC</span>
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">SendRequestError</span>::<span class="ident">Connect</span>(<span class="ident">ConnectError</span>::<span class="ident">Disconnected</span>));
+            }
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+        }
     } <span class="kw">else</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">SendRequestError</span>::<span class="ident">from</span>(<span class="ident">ConnectError</span>::<span class="ident">Disconnected</span>));
+        <span class="bool-val">false</span>
     };
 
-    <span class="kw">match</span> <span class="ident">framed</span>.<span class="ident">codec_ref</span>().<span class="ident">message_type</span>() {
+    <span class="ident">framed</span>.<span class="ident">send</span>((<span class="ident">head</span>, <span class="ident">body</span>.<span class="ident">size</span>()).<span class="ident">into</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pin_framed</span> <span class="op">=</span> <span class="ident">Pin</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">framed</span>);
+
+    <span class="comment">// special handle for EXPECT request.</span>
+    <span class="kw">let</span> (<span class="ident">do_send</span>, <span class="kw-2">mut</span> <span class="ident">res_head</span>) <span class="op">=</span> <span class="kw">if</span> <span class="ident">is_expect</span> {
+        <span class="kw">let</span> <span class="ident">head</span> <span class="op">=</span> <span class="ident">poll_fn</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> <span class="ident">pin_framed</span>.<span class="ident">as_mut</span>().<span class="ident">poll_next</span>(<span class="ident">cx</span>))
+            .<span class="kw">await</span>
+            .<span class="ident">ok_or</span>(<span class="ident">ConnectError</span>::<span class="ident">Disconnected</span>)<span class="question-mark">?</span><span class="question-mark">?</span>;
+
+        <span class="comment">// return response head in case status code is not continue</span>
+        <span class="comment">// and current head would be used as final response head.</span>
+        (<span class="ident">head</span>.<span class="ident">status</span> <span class="op">=</span><span class="op">=</span> <span class="ident">StatusCode</span>::<span class="ident">CONTINUE</span>, <span class="prelude-val">Some</span>(<span class="ident">head</span>))
+    } <span class="kw">else</span> {
+        (<span class="bool-val">true</span>, <span class="prelude-val">None</span>)
+    };
+
+    <span class="kw">if</span> <span class="ident">do_send</span> {
+        <span class="comment">// send request body</span>
+        <span class="kw">match</span> <span class="ident">body</span>.<span class="ident">size</span>() {
+            <span class="ident">BodySize</span>::<span class="prelude-val">None</span> <span class="op">|</span> <span class="ident">BodySize</span>::<span class="ident">Empty</span> <span class="op">|</span> <span class="ident">BodySize</span>::<span class="ident">Sized</span>(<span class="number">0</span>) <span class="op">=</span><span class="op">&gt;</span> {}
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">send_body</span>(<span class="ident">body</span>, <span class="ident">pin_framed</span>.<span class="ident">as_mut</span>()).<span class="kw">await</span><span class="question-mark">?</span>,
+        };
+
+        <span class="comment">// read response and init read body</span>
+        <span class="kw">let</span> <span class="ident">head</span> <span class="op">=</span> <span class="ident">poll_fn</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> <span class="ident">pin_framed</span>.<span class="ident">as_mut</span>().<span class="ident">poll_next</span>(<span class="ident">cx</span>))
+            .<span class="kw">await</span>
+            .<span class="ident">ok_or</span>(<span class="ident">ConnectError</span>::<span class="ident">Disconnected</span>)<span class="question-mark">?</span><span class="question-mark">?</span>;
+
+        <span class="ident">res_head</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">head</span>);
+    }
+
+    <span class="kw">let</span> <span class="ident">head</span> <span class="op">=</span> <span class="ident">res_head</span>.<span class="ident">unwrap</span>();
+
+    <span class="kw">match</span> <span class="ident">pin_framed</span>.<span class="ident">codec_ref</span>().<span class="ident">message_type</span>() {
         <span class="ident">h1</span>::<span class="ident">MessageType</span>::<span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">force_close</span> <span class="op">=</span> <span class="op">!</span><span class="ident">framed</span>.<span class="ident">codec_ref</span>().<span class="ident">keepalive</span>();
-            <span class="ident">release_connection</span>(<span class="ident">framed</span>, <span class="ident">force_close</span>);
+            <span class="kw">let</span> <span class="ident">force_close</span> <span class="op">=</span> <span class="op">!</span><span class="ident">pin_framed</span>.<span class="ident">codec_ref</span>().<span class="ident">keepalive</span>();
+            <span class="ident">release_connection</span>(<span class="ident">pin_framed</span>, <span class="ident">force_close</span>);
             <span class="prelude-val">Ok</span>((<span class="ident">head</span>, <span class="ident">Payload</span>::<span class="prelude-val">None</span>))
         }
         <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">pl</span>: <span class="ident">PayloadStream</span> <span class="op">=</span> <span class="ident">PlStream</span>::<span class="ident">new</span>(<span class="ident">framed_inner</span>).<span class="ident">boxed_local</span>();
+            <span class="kw">let</span> <span class="ident">pl</span>: <span class="ident">PayloadStream</span> <span class="op">=</span> <span class="ident">Box</span>::<span class="ident">pin</span>(<span class="ident">PlStream</span>::<span class="ident">new</span>(<span class="ident">framed</span>));
             <span class="prelude-val">Ok</span>((<span class="ident">head</span>, <span class="ident">pl</span>.<span class="ident">into</span>()))
         }
     }
