@@ -349,6 +349,7 @@
 <span id="348">348</span>
 <span id="349">349</span>
 <span id="350">350</span>
+<span id="351">351</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">convert</span>::<span class="ident">TryFrom</span>,
@@ -644,7 +645,7 @@
     <span class="attribute">#[<span class="ident">actix_rt</span>::<span class="ident">test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_basic_redirect</span>() {
         <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">ClientBuilder</span>::<span class="ident">new</span>()
-            .<span class="ident">connector</span>(<span class="kw">crate</span>::<span class="ident">Connector</span>::<span class="ident">new</span>())
+            .<span class="ident">disable_redirects</span>()
             .<span class="ident">wrap</span>(<span class="ident">Redirect</span>::<span class="ident">new</span>().<span class="ident">max_redirect_times</span>(<span class="number">10</span>))
             .<span class="ident">finish</span>();
 
@@ -670,6 +671,7 @@
     <span class="attribute">#[<span class="ident">actix_rt</span>::<span class="ident">test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_redirect_limit</span>() {
         <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">ClientBuilder</span>::<span class="ident">new</span>()
+            .<span class="ident">disable_redirects</span>()
             .<span class="ident">wrap</span>(<span class="ident">Redirect</span>::<span class="ident">new</span>().<span class="ident">max_redirect_times</span>(<span class="number">1</span>))
             .<span class="ident">connector</span>(<span class="kw">crate</span>::<span class="ident">Connector</span>::<span class="ident">new</span>())
             .<span class="ident">finish</span>();
