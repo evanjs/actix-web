@@ -531,20 +531,6 @@
 <span id="530">530</span>
 <span id="531">531</span>
 <span id="532">532</span>
-<span id="533">533</span>
-<span id="534">534</span>
-<span id="535">535</span>
-<span id="536">536</span>
-<span id="537">537</span>
-<span id="538">538</span>
-<span id="539">539</span>
-<span id="540">540</span>
-<span id="541">541</span>
-<span id="542">542</span>
-<span id="543">543</span>
-<span id="544">544</span>
-<span id="545">545</span>
-<span id="546">546</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">fmt</span>,
@@ -568,8 +554,9 @@
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">config</span>::<span class="ident">ConnectorConfig</span>;
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">connection</span>::{<span class="ident">Connection</span>, <span class="ident">EitherIoConnection</span>};
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">error</span>::<span class="ident">ConnectError</span>;
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">pool</span>::{<span class="ident">ConnectionPool</span>, <span class="ident">Protocol</span>};
+<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">pool</span>::<span class="ident">ConnectionPool</span>;
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">Connect</span>;
+<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">Protocol</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;openssl&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">actix_tls</span>::<span class="ident">connect</span>::<span class="ident">ssl</span>::<span class="ident">openssl</span>::<span class="ident">SslConnector</span> <span class="kw">as</span> <span class="ident">OpensslConnector</span>;
@@ -696,7 +683,7 @@
         <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 {
     <span class="doccomment">/// Connection timeout, i.e. max time to connect to remote host including dns name resolution.</span>
-    <span class="doccomment">/// Set to 1 second by default.</span>
+    <span class="doccomment">/// Set to 5 second by default.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">timeout</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">timeout</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">config</span>.<span class="ident">timeout</span> <span class="op">=</span> <span class="ident">timeout</span>;
         <span class="self">self</span>
@@ -710,6 +697,7 @@
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls&quot;</span>)]</span>
+    <span class="doccomment">/// Use custom `SslConnector` instance.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rustls</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">connector</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">ClientConfig</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">ssl</span> <span class="op">=</span> <span class="ident">SslConnector</span>::<span class="ident">Rustls</span>(<span class="ident">connector</span>);
         <span class="self">self</span>
@@ -802,8 +790,7 @@
     <span class="doccomment">/// its combinator chain.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finish</span>(
         <span class="self">self</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Connect</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">Connection</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">ConnectError</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>
-    {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Connect</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">Connection</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">ConnectError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">local_address</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">config</span>.<span class="ident">local_address</span>;
         <span class="kw">let</span> <span class="ident">timeout</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">config</span>.<span class="ident">timeout</span>;
 
@@ -938,21 +925,6 @@
 {
     <span class="ident">tcp_pool</span>: <span class="ident">ConnectionPool</span><span class="op">&lt;</span><span class="ident">S1</span>, <span class="ident">Io1</span><span class="op">&gt;</span>,
     <span class="ident">tls_pool</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ConnectionPool</span><span class="op">&lt;</span><span class="ident">S2</span>, <span class="ident">Io2</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S1</span>, <span class="ident">S2</span>, <span class="ident">Io1</span>, <span class="ident">Io2</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">InnerConnector</span><span class="op">&lt;</span><span class="ident">S1</span>, <span class="ident">S2</span>, <span class="ident">Io1</span>, <span class="ident">Io2</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S1</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Connect</span>, <span class="ident">Response</span> <span class="op">=</span> (<span class="ident">Io1</span>, <span class="ident">Protocol</span>), <span class="ident">Error</span> <span class="op">=</span> <span class="ident">ConnectError</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">S2</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Connect</span>, <span class="ident">Response</span> <span class="op">=</span> (<span class="ident">Io2</span>, <span class="ident">Protocol</span>), <span class="ident">Error</span> <span class="op">=</span> <span class="ident">ConnectError</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">Io1</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Unpin</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">Io2</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Unpin</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-{
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">InnerConnector</span> {
-            <span class="ident">tcp_pool</span>: <span class="self">self</span>.<span class="ident">tcp_pool</span>.<span class="ident">clone</span>(),
-            <span class="ident">tls_pool</span>: <span class="self">self</span>.<span class="ident">tls_pool</span>.<span class="ident">as_ref</span>().<span class="ident">cloned</span>(),
-        }
-    }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S1</span>, <span class="ident">S2</span>, <span class="ident">Io1</span>, <span class="ident">Io2</span><span class="op">&gt;</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Connect</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">InnerConnector</span><span class="op">&lt;</span><span class="ident">S1</span>, <span class="ident">S2</span>, <span class="ident">Io1</span>, <span class="ident">Io2</span><span class="op">&gt;</span>

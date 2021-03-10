@@ -662,21 +662,6 @@
 <span id="661">661</span>
 <span id="662">662</span>
 <span id="663">663</span>
-<span id="664">664</span>
-<span id="665">665</span>
-<span id="666">666</span>
-<span id="667">667</span>
-<span id="668">668</span>
-<span id="669">669</span>
-<span id="670">670</span>
-<span id="671">671</span>
-<span id="672">672</span>
-<span id="673">673</span>
-<span id="674">674</span>
-<span id="675">675</span>
-<span id="676">676</span>
-<span id="677">677</span>
-<span id="678">678</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Client connection pooling keyed on the authority part of the connection URI.</span>
 
@@ -705,13 +690,7 @@
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">error</span>::<span class="ident">ConnectError</span>;
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">h2proto</span>::<span class="ident">handshake</span>;
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">Connect</span>;
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="doccomment">/// Protocol version</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Protocol</span> {
-    <span class="ident">Http1</span>,
-    <span class="ident">Http2</span>,
-}
+<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">Protocol</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Hash</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">Key</span> {
@@ -828,18 +807,6 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Io</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">ConnectionPool</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Io</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">Io</span>: <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Unpin</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-{
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">connector</span>: <span class="self">self</span>.<span class="ident">connector</span>.<span class="ident">clone</span>(),
-            <span class="ident">inner</span>: <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">clone</span>(),
-        }
-    }
-}
-
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Io</span><span class="op">&gt;</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Connect</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ConnectionPool</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Io</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Connect</span>, <span class="ident">Response</span> <span class="op">=</span> (<span class="ident">Io</span>, <span class="ident">Protocol</span>), <span class="ident">Error</span> <span class="op">=</span> <span class="ident">ConnectError</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
@@ -922,6 +889,9 @@
                 <span class="prelude-val">Some</span>(<span class="ident">conn</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">IoConnection</span>::<span class="ident">new</span>(<span class="ident">conn</span>.<span class="ident">conn</span>, <span class="ident">conn</span>.<span class="ident">created</span>, <span class="ident">acquired</span>)),
                 <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> (<span class="ident">io</span>, <span class="ident">proto</span>) <span class="op">=</span> <span class="ident">connector</span>.<span class="ident">call</span>(<span class="ident">req</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+                    <span class="comment">// TODO: remove when http3 is added in support.</span>
+                    <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">proto</span> <span class="op">!</span><span class="op">=</span> <span class="ident">Protocol</span>::<span class="ident">Http3</span>);
 
                     <span class="kw">if</span> <span class="ident">proto</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Protocol</span>::<span class="ident">Http1</span> {
                         <span class="prelude-val">Ok</span>(<span class="ident">IoConnection</span>::<span class="ident">new</span>(
